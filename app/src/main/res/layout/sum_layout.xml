@@ -1,0 +1,37 @@
+<merge>
+    <com.google.android.material.card.MaterialCardView android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    app:cardElevation="0dp"
+    app:cardCornerRadius="12dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/summary_heading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fizetendő összeg"
+        android:textColor="@color/yettel_text_color"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:lineHeight="16sp"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/summary_price"
+        app:layout_constraintTop_toBottomOf="@id/summary_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="12 700 Ft"
+        android:textStyle="bold"
+        android:textColor="@color/yettel_text_color"
+        android:textSize="40sp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
+</merge>

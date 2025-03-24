@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginHorizontal="16dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/heading"
+            android:layout_marginTop="16dp"
+            style="@style/HeaderTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Éves vármegyei matricák"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/county_vignette_recyclerview"
+            android:layout_marginTop="16dp"
+            android:paddingVertical="16dp"
+            android:background="@drawable/rounded_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/heading" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/summary_view"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/county_vignette_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <include layout="@layout/sum_layout"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buy_county_vignette_button"
+            style="@style/default_filled_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tovább"
+            app:layout_constraintTop_toBottomOf="@id/summary_view" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
