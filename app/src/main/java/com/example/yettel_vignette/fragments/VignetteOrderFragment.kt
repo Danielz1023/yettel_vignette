@@ -2,7 +2,6 @@ package com.example.yettel_vignette.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -101,8 +100,8 @@ class VignetteOrderFragment: Fragment(R.layout.fragment_order_vignette) {
             if (vignettes.isNotEmpty()) {
                 vignetteAdapter = VignetteOrderAdapter(vignettes)
                 recyclerView.adapter = vignetteAdapter
-                summaryBinding.summaryPrice.text =
-                    (vignettes.sumOf { it.cost } + vignettes[0].trxFee).toHungarianForint()
+                (vignettes.sumOf { it.cost } + vignettes[0].trxFee).toHungarianForint()
+                    .also { summaryBinding.summaryPrice.text = it }
                 vehicleInfoBinding.vignetteTypeValue.text =
                     if (vignettes.first().vignetteCategory.isNullOrEmpty()) {
                         "Éves vármegyei"
