@@ -104,6 +104,14 @@ class VignetteViewModel @Inject constructor(
         }
     }
 
+    fun hasSelectedCountryVignette(): Boolean {
+        return _selectedVignette.value != null
+    }
+
+    fun hasSelectedCountyVignette(): Boolean {
+        return _selectedCountyVignettes.value.isNotEmpty()
+    }
+
     private suspend fun fetchVehicleInformation() {
         try {
             val response = withContext(Dispatchers.IO) {

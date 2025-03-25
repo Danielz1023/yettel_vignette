@@ -76,11 +76,13 @@ class VignetteFragment : Fragment(R.layout.fragment_vignette) {
         }
 
         countryVignettesBinding.buyCountryVignetteButton.setOnClickListener {
-            vignetteViewModel.setOrderType(OrderType.COUNTRY)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, VignetteOrderFragment())
-                .addToBackStack(null)
-                .commit()
+            if(vignetteViewModel.hasSelectedCountryVignette()){
+                vignetteViewModel.setOrderType(OrderType.COUNTRY)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, VignetteOrderFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 

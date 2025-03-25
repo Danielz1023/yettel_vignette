@@ -51,11 +51,13 @@ class CountyVignetteFragment : Fragment() {
 
     private fun setupBuyButton() {
         binding.buyCountyVignetteButton.setOnClickListener {
-            vignetteViewModel.setOrderType(OrderType.COUNTY)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, VignetteOrderFragment())
-                .addToBackStack(null)
-                .commit()
+            if(vignetteViewModel.hasSelectedCountyVignette()) {
+                vignetteViewModel.setOrderType(OrderType.COUNTY)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, VignetteOrderFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
