@@ -110,7 +110,6 @@ class VignetteOrderFragment: Fragment(R.layout.fragment_order_vignette) {
                         "Országos matrica"
                     }
                 binding.extraFeeValue.text = vignettes.first().trxFee.toHungarianForint()
-                Log.d("BASKET", vignettes.toString())
             }
         }
     }

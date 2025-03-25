@@ -113,7 +113,6 @@ class VignetteFragment : Fragment(R.layout.fragment_vignette) {
 
     private fun updateSelectedVignette(selectedVignette: HighwayVignette?) {
         if (::vignetteAdapter.isInitialized) {
-            Log.d("VignetteFragment", "Updating selected vignette: ${selectedVignette.toString()}")
             selectedVignette?.pos?.let { vignetteAdapter.selectVignette(it) }
         }
     }
