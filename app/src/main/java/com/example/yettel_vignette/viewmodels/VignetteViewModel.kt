@@ -7,9 +7,8 @@ import com.example.yettel_vignette.enums.OrderType
 import com.example.yettel_vignette.extensions.toVignetteOrder
 import com.example.yettel_vignette.interfaces.VignetteHandler
 import com.example.yettel_vignette.models.HighwayVignette
-import com.example.yettel_vignette.models.Payload
+import com.example.yettel_vignette.models.Result
 import com.example.yettel_vignette.models.Vehicle
-import com.example.yettel_vignette.models.VehicleCategory
 import com.example.yettel_vignette.models.VignetteOrderRequest
 import com.example.yettel_vignette.models.VignetteOrderResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,26 +69,6 @@ class VignetteViewModel @Inject constructor(
         }
     }
 
-    fun placeOrder() {
-        viewModelScope.launch {
-            try {
-                val vignetteOrderRequest = VignetteOrderRequest(
-                    highwayOrders = _basketVignettes.value.map { it.toVignetteOrder() }
-                )
-
-                val response = withContext(Dispatchers.IO) {
-                    vignetteHandler.placeVignetteOrder(vignetteOrderRequest)
-                }
-
-                if (response.isSuccessful) {
-                    _orderResponse.value = response.body()
-                }
-            } catch (e: Exception) {
-                Log.e("VignetteViewModel", "Error placing order", e)
-            }
-        }
-    }
-
     fun clearOrderResponse() {
         _orderResponse.value = null
     }
@@ -112,78 +91,33 @@ class VignetteViewModel @Inject constructor(
         return _selectedCountyVignettes.value.isNotEmpty()
     }
 
-    private suspend fun fetchVehicleInformation() {
-        try {
-            val response = withContext(Dispatchers.IO) {
-                vignetteHandler.getVehicleInfo()
-            }
+    fun placeOrder() {
+        viewModelScope.launch {
+            val vignetteOrderRequest = VignetteOrderRequest(
+                highwayOrders = _basketVignettes.value.map { it.toVignetteOrder() }
+            )
 
-            if (response.isSuccessful && response.body() != null) {
-                val vehicle = response.body() ?: return
-                _vehicle.value = vehicle
-            } else {
-                Log.e("VignetteViewModel", "Response was unsuccessful or body is null")
+            when (val result = withContext(Dispatchers.IO) { vignetteHandler.placeVignetteOrder(vignetteOrderRequest) }) {
+                is Result.Success -> _orderResponse.value = result.data
+                is Result.Error -> Log.e("VignetteViewModel", "Error placing order: ${result.message}")
             }
-        } catch (e: Exception) {
-            Log.e("VignetteViewModel", "Error fetching vehicle information", e)
+        }
+    }
+
+    private suspend fun fetchVehicleInformation() {
+        when (val result = withContext(Dispatchers.IO) { vignetteHandler.getVehicleInfo() }) {
+            is Result.Success -> _vehicle.value = result.data
+            is Result.Error -> Log.e("VignetteViewModel", "Error fetching vehicle information: ${result.message}")
         }
     }
 
     private suspend fun fetchVignettes() {
-        try {
-            val response = withContext(Dispatchers.IO) {
-                vignetteHandler.getHighwayVignetteInfo()
+        when (val result = withContext(Dispatchers.IO) { vignetteHandler.getHighwayVignetteInfo() }) {
+            is Result.Success -> result.data.let { data ->
+                _vignettes.value = data.vignettes
+                _countyVignettes.value = data.countyVignettes
             }
-
-            if (response.isSuccessful && response.body() != null) {
-                val payload = response.body()?.payload ?: return
-                val vehicleCategoriesMap = mapVehicleCategories(payload)
-
-                _vignettes.value = filterAndMapVignettes(payload, vehicleCategoriesMap)
-                _countyVignettes.value = mapCountyVignettes(payload)
-            } else {
-                Log.e("VignetteViewModel", "Response was unsuccessful or body is null")
-            }
-        } catch (e: Exception) {
-            Log.e("VignetteViewModel", "Error fetching vignettes", e)
-        }
-    }
-
-
-    private fun mapVehicleCategories(payload: Payload): Map<String, VehicleCategory> {
-        return payload.vehicleCategories.associateBy { it.category }
-    }
-
-    private fun filterAndMapVignettes(
-        payload: Payload,
-        vehicleCategoriesMap: Map<String, VehicleCategory>
-    ): List<HighwayVignette> {
-        return payload.highwayVignettes
-            .filter { it.vignetteType.size == 1 }
-            .mapIndexed { index, vignette ->
-                val vignetteCategory =
-                    vehicleCategoriesMap[vignette.vehicleCategory]?.vignetteCategory ?: ""
-                vignette.copy(
-                    pos = index,
-                    display = vignetteCategory + " - " + vignette.vignetteType.joinToString(),
-                    vignetteCategory = vignetteCategory
-                )
-            }
-    }
-
-    private fun mapCountyVignettes(payload: Payload): List<HighwayVignette> {
-        val countiesMap = payload.counties.associateBy { it.id }
-        return payload.highwayVignettes.flatMapIndexed { _, vignette ->
-            vignette.vignetteType.mapNotNull { id ->
-                countiesMap[id]?.let { county ->
-                    vignette.copy(
-                        display = county.name,
-                        vignetteCategory = vignette.vignetteCategory,
-                        vignetteType = listOf(id),
-                        pos = vignette.vignetteType.indexOf(id)
-                    )
-                }
-            }
+            is Result.Error -> Log.e("VignetteViewModel", "Error fetching vignettes: ${result.message}")
         }
     }
 }

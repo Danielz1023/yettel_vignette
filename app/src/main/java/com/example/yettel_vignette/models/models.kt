@@ -24,6 +24,11 @@ data class HighwayVignette(
     val sum: Int
 )
 
+data class VignetteResult(
+    val vignettes: List<HighwayVignette>,
+    val countyVignettes: List<HighwayVignette>
+)
+
 data class VehicleCategory(
     val category: String,
     val vignetteCategory: String,
