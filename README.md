@@ -48,7 +48,9 @@ To run the application on a physical device, you need to configure the network s
 
 ## Future Improvements
 
-* Move hardcoded strings from layouts to `strings.xml`.
+* Move hardcoded strings from layouts to `dimens.xml`.
+* Move data mapping logics from VignetteViewModel to the VignetteHandler
+* Improve reusability in VignetteViewModel
 * Standardize layout naming conventions for consistency.
 * Consider migrating UI to Jetpack Compose.
 * Enhance error handling (network errors, API failures, etc.).
