@@ -50,6 +50,7 @@ To run the application on a physical device, you need to configure the network s
 
 * Move hardcoded strings from layouts to `dimens.xml`.
 * Move data mapping logics from VignetteViewModel to the VignetteHandler
+* Finish wrapping api response to Result
 * Improve reusability in VignetteViewModel
 * Standardize layout naming conventions for consistency.
 * Consider migrating UI to Jetpack Compose.
