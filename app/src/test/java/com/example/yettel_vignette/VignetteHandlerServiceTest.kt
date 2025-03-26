@@ -9,8 +9,12 @@ import com.example.yettel_vignette.models.VignetteOrder
 import com.example.yettel_vignette.models.VignetteOrderRequest
 import com.example.yettel_vignette.models.VignetteOrderResponse
 import com.example.yettel_vignette.services.VignetteHandlerService
+import com.example.yettel_vignette.models.Result
+import com.example.yettel_vignette.models.VignetteResult
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -33,7 +37,7 @@ class VignetteHandlerServiceTest {
     }
 
     @Test
-    fun `test getHighwayVignetteInfo calls repository method`() = runBlocking {
+    fun `test getHighwayVignetteInfo returns success`() = runBlocking {
         // GIVEN
         val dummyPayload = Payload(
             highwayVignettes = emptyList(),
@@ -41,27 +45,32 @@ class VignetteHandlerServiceTest {
             counties = emptyList()
         )
 
-        val dummyResponse = Response.success(
-            HighwayVignetteResponse(
-                requestId = "dummyId",
-                statusCode = "OK",
-                payload = dummyPayload,
-                dataType = "dummyType"
-            )
+        val dummyResponse = HighwayVignetteResponse(
+            requestId = "dummyId",
+            statusCode = "OK",
+            payload = dummyPayload,
+            dataType = "dummyType"
         )
 
-        `when`(repository.getHighwayVignetteInfo()).thenReturn(dummyResponse)
+        `when`(repository.getHighwayVignetteInfo()).thenReturn(Response.success(dummyResponse))
+
+        val expectedResult = VignetteResult(
+            vignettes = emptyList(),
+            countyVignettes = emptyList()
+        )
 
         // WHEN
         val result = service.getHighwayVignetteInfo()
 
         // THEN
         verify(repository).getHighwayVignetteInfo()
-        assertEquals(dummyResponse, result)
+        assertTrue(result is Result.Success)
+        assertEquals(expectedResult, (result as Result.Success).data)
     }
 
+
     @Test
-    fun `test getVehicleInfo calls repository method`() = runBlocking {
+    fun `test getVehicleInfo returns success`() = runBlocking {
         // Given
         val dummyVehicle = Vehicle(
             requestId = "vehicleId",
@@ -81,11 +90,26 @@ class VignetteHandlerServiceTest {
 
         // Then
         verify(repository).getVehicleInfo()
-        assertEquals(dummyResponse, result)
+        assertTrue(result is Result.Success)
+        assertEquals(dummyVehicle, (result as Result.Success).data)
     }
 
     @Test
-    fun `test placeVignetteOrder calls repository method`() = runBlocking {
+    fun `test getVehicleInfo returns error when API call fails`() = runBlocking {
+        // Given
+        `when`(repository.getVehicleInfo()).thenReturn(Response.error(500, "".toResponseBody()))
+
+        // When
+        val result = service.getVehicleInfo()
+
+        // Then
+        verify(repository).getVehicleInfo()
+        assertTrue(result is Result.Error)
+        assertEquals("API call failed with code 500", (result as Result.Error).message)
+    }
+
+    @Test
+    fun `test placeVignetteOrder returns success`() = runBlocking {
         // Given
         val dummyOrder = VignetteOrder(
             type = "DAY",
@@ -106,6 +130,22 @@ class VignetteHandlerServiceTest {
 
         // Then
         verify(repository).placeVignetteOrder(orderRequest)
-        assertEquals(dummyResponse, result)
+        assertTrue(result is Result.Success)
+        assertEquals(dummyOrderResponse, (result as Result.Success).data)
+    }
+
+    @Test
+    fun `test placeVignetteOrder returns error when API call fails`() = runBlocking {
+        // Given
+        val orderRequest = VignetteOrderRequest(highwayOrders = listOf())
+        `when`(repository.placeVignetteOrder(orderRequest)).thenReturn(Response.error(400, "".toResponseBody()))
+
+        // When
+        val result = service.placeVignetteOrder(orderRequest)
+
+        // Then
+        verify(repository).placeVignetteOrder(orderRequest)
+        assertTrue(result is Result.Error)
+        assertEquals("API call failed with code 400", (result as Result.Error).message)
     }
 }
